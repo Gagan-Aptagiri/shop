@@ -1,18 +1,24 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+
+//Utils
 global.appRoot = require.main.filename;
 const sequelize = require('./util/database');
+
+//Models
 const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
-const CartIem = require('./models/cart-item');
-
+const CartItem = require('./models/cartItem');
+const Order = require('./models/order');
+const OrderItem = require('./models/orderItem');
 
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
+//Routes
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error');
@@ -39,11 +45,14 @@ Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
 User.hasOne(Cart);
 Cart.belongsTo(User);
-Cart.belongsToMany(Product, {through: CartIem });
-Product.belongsToMany(Cart, { through: CartIem });
+Cart.belongsToMany(Product, {through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
 
 sequelize
-   // .sync({ force: true }) Force recreation of tables
+   // .sync({ force: true }) //Force recreation of tables
    .sync()
    .then(result => {
      return User.findByPk(1);
@@ -55,8 +64,10 @@ sequelize
       return Promise.resolve(user);
    })
    .then(user => {
-      // console.log(user);
-       app.listen(3000);
+      return user.createCart();
+   })
+   .then(cart => {
+      app.listen(3000);
    })
    .catch(err => {
       console.log(err);

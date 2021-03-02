@@ -5,6 +5,9 @@ global.appRoot = require.main.filename;
 const sequelize = require('./util/database');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartIem = require('./models/cart-item');
+
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -31,8 +34,13 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
+/* Sequelize Associations */
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, {through: CartIem });
+Product.belongsToMany(Cart, { through: CartIem });
 
 sequelize
    // .sync({ force: true }) Force recreation of tables

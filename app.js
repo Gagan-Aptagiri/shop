@@ -6,6 +6,9 @@ const bodyParser = require('body-parser');
 global.appRoot = require.main.filename;
 const mongoConnect = require('./util/database').mongoConnect;
 
+//Models
+const User = require('./models/user');
+
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -19,12 +22,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-   // User.findByPk(1)
-   //    .then(user => {
-   //       req.user = user;
-   //       next();
-   //    })
-   //    .catch(err => console.log(err));
+   User.findById('603fc1d6f687dfffa2a40706')
+     .then((user) => {
+       req.user = user;
+       next();
+     })
+     .catch((err) => console.log(err));
    next();
 });
 
@@ -33,6 +36,6 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect( () => {
+mongoConnect(() => {
    app.listen(3000);
 });

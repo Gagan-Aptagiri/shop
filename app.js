@@ -1,10 +1,10 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 //Utils
 global.appRoot = require.main.filename;
-const mongoConnect = require('./util/database').mongoConnect;
 
 //Models
 const User = require('./models/user');
@@ -22,19 +22,30 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-   User.findById('603fc1d6f687dfffa2a40706')
-     .then((user) => {
-       req.user = new User(user.name, user.email, user.cart, user._id);
-       next();
-     })
-     .catch((err) => console.log(err));
+  User.findById('603fc1d6f687dfffa2a40706')
+    .then((user) => {
+      req.user = new User(user.name, user.email, user.cart, user._id);
+      next();
+    })
+    .catch((err) => console.log(err));
 });
 
-app.use('/admin',adminRoutes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
-   app.listen(3000);
-});
+mongoose
+  .connect(
+    'mongodb+srv://gags:gags123@alpha.tlchy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
+  )
+  .then((result) => {
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });

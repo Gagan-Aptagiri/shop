@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 global.appRoot = require.main.filename;
 
 //Models
-// const User = require('./models/user');
+const User = require('./models/user');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -21,14 +21,14 @@ const errorController = require('./controllers/error');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use((req, res, next) => {
-//   User.findById('603fc1d6f687dfffa2a40706')
-//     .then((user) => {
-//       req.user = new User(user.name, user.email, user.cart, user._id);
-//       next();
-//     })
-//     .catch((err) => console.log(err));
-// });
+app.use((req, res, next) => {
+  User.findById('6042486e5635263bf075d322')
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.log(err));
+});
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
@@ -45,8 +45,20 @@ mongoose
     }
   )
   .then((result) => {
-    console.log('Connected to the database.')
+    User.findOne().then(user => {
+      if (!user) {
+        const user = new User({
+          name: 'Gags',
+          email: 'gags@test.com',
+          cart: {
+            items: [],
+          },
+        });
+        user.save();
+      }
+    });
     app.listen(3000);
+    console.log('Connected to the database.')
   })
   .catch((err) => {
     console.log(err);

@@ -20,15 +20,8 @@ const store = new MongoDBStore({
 });
 const csurfProtection = csrf();
 
-
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken();
-  next();
-});
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -46,6 +39,12 @@ app.use(
 );
 
 app.use(csurfProtection);
+
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 app.use((req, res, next) => {
   if (!req.session.user) {

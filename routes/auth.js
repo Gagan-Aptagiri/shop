@@ -1,5 +1,5 @@
 const express = require('express');
-const { check, body } = require('express-validator/check');
+const { check, body } = require('express-validator');
 
 const authController = require('../controllers/auth');
 const User = require('../models/user');
@@ -10,7 +10,23 @@ router.get('/login', authController.getLogin);
 
 router.get('/signup', authController.getSignup);
 
-router.post('/login', authController.postLogin);
+router.post(
+  '/login',
+  [
+    body('email')
+      .isEmail()
+      .withMessage('Please provide a valid email.')
+      .normalizeEmail(),
+    body(
+      'password',
+      'Please enter a correct password.'
+    )
+      .isLength({ min: 5 })
+      .isAlphanumeric()
+      .trim(),
+  ],
+  authController.postLogin
+);
 
 router.post(
   '/signup',
@@ -29,14 +45,16 @@ router.post(
               return Promise.reject('E-Mail exists already, please pick a different one.');
             }
           });
-      }),
+      }).normalizeEmail(),
     body(
       'password',
       'Please enter a password with only numbers and text and atleast 5 characters.'
     )
       .isLength({ min: 5 })
-      .isAlphanumeric(),
+      .isAlphanumeric()
+      .trim(),
     body('confirmPassword')
+      .trim()
       .custom((value, { req }) => {
         if (value !== req.body.password) {
           throw new Error('Passwords have to match!');

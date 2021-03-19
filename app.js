@@ -1,5 +1,4 @@
 const path = require('path');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -18,7 +17,7 @@ const app = express();
 
 const store = new MongoDBStore({
   uri: MONGODB_URI,
-  collection: 'sessions'
+  collection: 'sessions',
 });
 
 const csurfProtection = csrf();
@@ -37,7 +36,7 @@ app.use(
     secret: 'my secret',
     resave: false,
     saveUninitialized: false,
-    store: store
+    store: store,
   })
 );
 
@@ -54,23 +53,27 @@ app.use((req, res, next) => {
     return next();
   }
   User.findById(req.session.user._id)
-    .then(user => {
+    .then((user) => {
+      if (!user) {
+        return next();
+      }
       req.user = user;
       next();
     })
-    .catch(err => console.log(err));
+    .catch((err) => {
+      throw new Error(err);
+    });
 });
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-
 app.use(errorController.get404);
 
 mongoose
   .connect(MONGODB_URI, {
     useUnifiedTopology: true,
-    useNewUrlParser: true
+    useNewUrlParser: true,
   })
   .then((result) => {
     app.listen(3000);

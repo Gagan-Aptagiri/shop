@@ -184,7 +184,7 @@ exports.getInvoice = (req, res, next) => {
 					);
 			});
 			pdfDoc.text('--------');
-			pdfDoc.fontSize(20).text('Total Price: $' + totalPrice.toFixed(3));
+			pdfDoc.fontSize(20).text('Total Price: $' + totalPrice.toFixed(2));
 			pdfDoc.end();
 			//Method 1: Create in Memory (preload data)
 			// fs.readFile(invoicePath, (err, data) => {

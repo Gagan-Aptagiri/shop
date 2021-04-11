@@ -11,7 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@alpha.tlchy.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 
 const app = express();
 
@@ -112,7 +112,7 @@ mongoose
 		useNewUrlParser: true,
 	})
 	.then((result) => {
-		app.listen(3000);
+		app.listen(process.env.PORT || 3000);
 		console.log('Connected to the database.');
 	})
 	.catch((err) => {
